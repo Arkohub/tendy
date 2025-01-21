@@ -69,10 +69,33 @@ while True:
                 if desc_inner:
                     description = desc_inner.get_text(strip=True)
                     break
+        
+        # Extract ATM ID
+        atmid = "no ID"
+        for desc in row.find_all("div", class_="list-desc"):
+            span = desc.find("span")
+            if span and span.get_text(strip=True) == "ATM ID:":
+                                      desc_inner = desc.find("div", class_="list-desc-inner")
+                                      if desc_inner:
+                                        atmid = desc_inner.get_text(strip=True)
+                                        break
+                                      
+
+        # Extract Agency
+        agency = "no agency"
+        for desc in row.find_all("div", class_="list-desc"):
+            span = desc.find("span")
+            if span and span.get_text(strip=True) == "Agency:":
+                                      desc_inner = desc.find("div", class_="list-desc-inner")
+                                      if desc_inner:
+                                        agency = desc_inner.get_text(strip=True)
+                                        break
+                                      
+
 
         # Only add to the list if title and category are valid
         if title != "No title" and category != "No category":
-            tenders.append({"category": category, "title": title, "description": description})
+            tenders.append({"category": category, "title": title, "description": description, "ATM ID": atmid, "agency": agency})
 
     # Check if there is a "Next" button
     next_button = soup.find("li", class_="next")
@@ -87,8 +110,8 @@ while True:
 csv_file = "tenders_with_pagination.csv"
 with open(csv_file, mode="w", newline="", encoding="utf-8") as file:
     writer = csv.writer(file)
-    writer.writerow(["Category", "Title", "Description"])  # Write header
+    writer.writerow(["Category", "Agency", "ATM ID", "Title", "Description"])  # Write header
     for tender in tenders:
-        writer.writerow([tender["category"], tender["title"], tender["description"]])
+        writer.writerow([tender["category"], tender["agency"], tender["ATM ID"], tender["title"], tender["description"]])
 
 print(f"Exported {len(tenders)} tenders to '{csv_file}'")
